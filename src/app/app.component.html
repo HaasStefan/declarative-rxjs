@@ -1,7 +1,12 @@
-<label for="control">Input</label><br>
+<label for="control">Command:</label><br>
 <input id="control" [formControl]="control" />
 
 <br>
 <br>
+Examples: <br>
+add,1,2,3,4 <br>
+subtract,90,10 <br>
+multiply,1,1,2<br>
+<br>
 
-{{ secret$ | async }}
+result: {{ result$ | async }}

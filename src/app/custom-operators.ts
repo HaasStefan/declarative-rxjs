@@ -2,16 +2,12 @@ import {
   debounceTime,
   distinctUntilChanged,
   filter,
-  interval,
   map,
   Observable,
-  of,
-  startWith,
-  switchMap,
 } from 'rxjs';
 
 export function lookAhead<T>(): (source$: Observable<T>) => Observable<T> {
-  return (source$) => source$.pipe(debounceTime(400), distinctUntilChanged());
+  return (source$) => source$.pipe(debounceTime(800), distinctUntilChanged());
 }
 
 export function assertString(): (
@@ -32,12 +28,13 @@ export function assertNumber(): (
     );
 }
 
-export function filterEven(): (
-  source$: Observable<number>
-) => Observable<number> {
-  return (source$) => source$.pipe(filter((value) => value % 2 === 0));
+export function split(): (source$: Observable<string>) => Observable<string[]> {
+  return (source$) =>
+    source$.pipe(
+      map((v) => v.split(',')),
+      filter((v) => v.length >= 1)
+    );
 }
-
 
 export function mapLiteralToNumber(): (
   source$: Observable<string>
@@ -59,13 +56,35 @@ export function mapLiteralToNumber(): (
     );
 }
 
-export function secretMap(): (
-  source$: Observable<string | number>
-) => Observable<string | number> {
+export function command(): (
+  source$: Observable<string[]>
+) => Observable<number | null> {
   return (source$) =>
     source$.pipe(
-      switchMap((value) =>
-        value === 2 ? interval(100).pipe(startWith(0)) : of(value)
-      )
+      map((v) => {
+        if (v[0] === 'add') {
+          return v
+            .slice(1)
+            .map((v) => +v)
+            .reduce((acc: number, current: number) => {
+              return acc + current;
+            }, 0);
+        } else if (v[0] === 'subtract') {
+          return v
+            .slice(1)
+            .map((v) => +v)
+            .reduce((acc: number, current: number) => {
+              return acc - current;
+            }, 0);
+        } else if (v[0] === 'multiply') {
+          return v
+            .slice(1)
+            .map((v) => +v)
+            .reduce((acc: number, current: number) => {
+              return acc * current;
+            }, 1);
+        }
+        return null;
+      })
     );
 }
